@@ -84,13 +84,13 @@ class Client(User):
     flat = models.IntegerField(blank=False)
 
     communal_service = models.BooleanField(default=False)
-    communal_service_balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
-
     water = models.BooleanField(default=False)
-    water_balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
-
     electricity = models.BooleanField(default=False)
-    electricity_balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+
+    def create_accounts(self):
+        Account.objects.get_or_create(type=Account.Type.COMMUNAL_SERVICE, client=self)
+        Account.objects.get_or_create(type=Account.Type.WATER, client=self)
+        Account.objects.get_or_create(type=Account.Type.ELECTRICITY, client=self)
 
     def create_counters(self):
         water_counter_data = requests.get(settings.external_url['water_counter']).json()
