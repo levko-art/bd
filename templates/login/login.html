@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="static/css/custom-css-bootstrap-magic-2020-12-30.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="static/css/custom-variables-bootstrap-2020-12-30.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="static/css/login-base.css" type="text/css" media="screen">
+</head>
+<body>
+<div class="container">
+
+    <form class="form-signin">
+
+        {% csrf_token %}
+
+        <h2 class="form-signin-heading">Будь ласка, увійдіть або зареєструйтесь</h2>
+        <label for="email" class="sr-only">e-mail або особовий рахунок</label>
+            <input name="email" id="email" type="email" class="form-control" placeholder="e-mail або особовий рахунок">
+        <label for="password" class="sr-only">Пароль</label>
+            <input name="password" id="password" type="password" class="form-control" placeholder="Пароль">
+        <button formaction="/handlers/login" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Увійти</button>
+        <button formaction="/handlers/redirect_to_sign_in" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Зареєструватись</button>
+    </form>
+
+</div>
+</body>
+</html>

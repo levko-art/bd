@@ -1,4 +1,4 @@
-"""BD_service URL Configuration
+"""bd_service URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.1/topics/http/urls/
@@ -17,20 +17,21 @@ from django.contrib import admin
 from django.urls import path, include
 
 # ToDo - РЕГИСТРАЦИЯ, АУТЕНТИФИКАЦИЯ
-#
+
 # ToDo - Увязка с эквайрингом
-#
+
 # ToDo - ВЗАИМОДЕЙСТВИЕ С 1С
 #  Запросы
 #  - ввод показаний счетчиков
 #  - заявка на вызов мастера
 #  - возможность отказаться от получения квитанций в бумажном виде
-#
+
 # ToDo - другое
 #  - справочник номеров телефонов
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('login.urls')),
     path('api/', include('api.urls')),
-    path('users/', include('users.urls'))
+    path('users/', include('users.urls')),
 ]

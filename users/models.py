@@ -1,80 +1,183 @@
+import datetime
+import uuid
+
+from django.db.models import F
+
+from bd_service import settings
+
 from django.db import models
 from django.contrib.auth.models import User
+import requests
 
 
-class Client(models.Model):
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    name = models.CharField(max_length=40)
-    personal_number = models.CharField(max_length=9)
-
-    # Contact information
-    phone = models.CharField(max_length=10)
-    email = models.EmailField()
-    viber = models.BooleanField(default=False)
-    telegram = models.BooleanField(default=False)
-    reserve_phone = models.CharField(max_length=10)
-
-    # Address
-    housing_complex = models.CharField(max_length=15)
-    region = models.CharField(max_length=10)
-    district = models.CharField(max_length=20)
-    town = models.CharField(max_length=25)
-    street = models.CharField(max_length=20)
-    building = models.IntegerField()
-    house_building = models.IntegerField()
-    flat = models.IntegerField()
-
-    # Services
-    communal_service = models.BooleanField(default=False)
-    communal_service_balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
-
-    water = models.BooleanField(default=False)
-    water_balance = models.BooleanField(default=0)
-    water_counter = models.IntegerField(default=0)
-
-    electricity = models.BooleanField(default=False)
-    electricity_balance = models.BooleanField(default=0)
-    electricity_counter = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.name
-
-
-class Transaction(models.Model):
-
-    transaction_date = models.DateField()
-    transaction_time = models.TimeField()
-    transaction_client = models.ForeignKey(Client, models.DO_NOTHING, related_name='TRANSACTION_client')
-    transaction_type = models.BooleanField(default=False)
-    transaction_sum = models.DecimalField(max_digits=7, decimal_places=2, default=0, null=False)
-
-    def __str__(self):
-        return self.id
+__all__ = 'Client', 'Counter', 'Transaction'
 
 
 class Counter(models.Model):
 
-    types = ((0, 'Водопостачання'), (1, 'Електроенергія'))
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
 
-    client = models.ForeignKey(Client, models.DO_NOTHING, related_name='COUNTER_client')
-    datetime = models.DateTimeField()
-    counter_type = models.IntegerField(choices=types)
-    counter_value = models.IntegerField()
+    class Type:
+        WATER = 0
+        ELECTRICITY = 1
+
+        CHOICES = [
+            (WATER, 'Водопостачання'),
+            (ELECTRICITY, 'Електроенергія'),
+        ]
+
+        _default_value, _name = CHOICES[0]
+
+    client = models.ForeignKey('Client', models.PROTECT)
+    datetime = models.DateTimeField(default=datetime.datetime.now())
+    type = models.IntegerField(choices=Type.CHOICES)
+    value = models.CharField(max_length=10, default=0)
+
+    objects = models.Manager()
 
     def __str__(self):
-        return self.id
+        return f'Counter {self.id}'
 
 
-class Task(models.Model):
+class Client(User):
 
-    types = ((0, 'Нова заявка'), (1, 'Передано в роботу'), (2, 'Взято в роботу'), (3, 'Виконано'))
+    client_id = models.CharField(max_length=9, blank=False)
 
-    client = models.ForeignKey(Client, models.DO_NOTHING, related_name='TASK_client')
-    datetime = models.DateTimeField()
-    text = models.TextField()
-    status = models.IntegerField(choices=types)
+    phone = models.CharField(max_length=10, blank=False)
+    viber = models.BooleanField(default=False)
+    telegram = models.BooleanField(default=False)
+    reserve_phone = models.CharField(max_length=10, blank=True)
+
+    housing_complex = models.CharField(max_length=20, blank=False)
+    region = models.CharField(max_length=15, blank=False)
+    district = models.CharField(max_length=25, blank=False)
+    town = models.CharField(max_length=30, blank=False)
+    street = models.CharField(max_length=20, blank=False)
+    building = models.IntegerField(blank=False)
+    house_building = models.IntegerField(blank=True)
+    flat = models.IntegerField(blank=False)
+
+    communal_service = models.BooleanField(default=False)
+    communal_service_balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+
+    water = models.BooleanField(default=False)
+    water_balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+
+    electricity = models.BooleanField(default=False)
+    electricity_balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+
+    def create_water_counter(self):
+        if self.water:
+            water_counter_data = requests.get(settings.external_url['water_counter']).json()
+            if water_counter_data:
+                Counter.objects.get_or_create(
+                    client=self,
+                    datetime=water_counter_data['datetime'],
+                    type=Counter.Type.WATER,
+                    value=water_counter_data['value']
+                )
+
+    def create_electricity_counter(self):
+        if self.electricity:
+            electricity_counter_data = requests.get(settings.external_url['electricity_counter']).json()
+            if electricity_counter_data:
+                Counter.objects.get_or_create(
+                    client=self,
+                    datetime=electricity_counter_data['datetime'],
+                    type=Counter.Type.WATER,
+                    value=electricity_counter_data['value']
+                )
+
+    @property
+    def water_counter(self) -> Counter:
+        return Counter.objects.get(type=Counter.Type.WATER, client=self)
+
+    @property
+    def electricity_counter(self) -> Counter:
+        return Counter.objects.get(type=Counter.Type.ELECTRICITY, client=self)
+
+    objects = models.Manager()
 
     def __str__(self):
-        return self.id
+        return f'Client {self.username}'
+
+
+class Transaction(models.Model):
+
+    class Type:
+        DEBIT = 0
+        CREDIT = 1
+
+        CHOICES = [
+            (DEBIT, 'Нарахування'),
+            (CREDIT, 'Оплата'),
+        ]
+
+        _default_value, _name = CHOICES[0]
+
+    class Appointment:
+        COMMUNAL_SERVICE = 0
+        WATER = 1
+        ELECTRICITY = 2
+
+        CHOICES = [
+            (COMMUNAL_SERVICE, 'Комунальний сервіс'),
+            (WATER, 'Водопостачання'),
+            (ELECTRICITY, 'Електропостачання'),
+        ]
+
+        _default_value, _name = CHOICES[0]
+
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+
+    date = models.DateField()
+    time = models.TimeField()
+    client = models.ForeignKey('Client', models.DO_NOTHING)
+    type = models.IntegerField(choices=Type.CHOICES)
+    amount = models.DecimalField(max_digits=7, decimal_places=2, default=0, null=False)
+    appointment = models.IntegerField(choices=Appointment.CHOICES)
+
+    def create_communal_service_transaction(self):
+        if self.type == Transaction.Type.CREDIT:
+            Client.objects.filter(client_id=self.client).update(communal_service_balance=F('communal_service_balance') + self.amount)
+        elif self.type == Transaction.Type.DEBIT:
+            Client.objects.filter(client_id=self.client).update(communal_service_balance=F('communal_service_balance') - self.amount)
+        else:
+            raise NotImplementedError(f'Transaction type {self.type} not implemented')
+        self.save()
+
+    def create_water_transaction(self):
+        if self.type == Transaction.Type.CREDIT:
+            Client.objects.filter(client_id=self.client).update(water_balance=F('water_balance') + self.amount)
+        elif self.type == Transaction.Type.DEBIT:
+            Client.objects.filter(client_id=self.client).update(water_balance=F('water_balance') - self.amount)
+        else:
+            raise NotImplementedError(f'Transaction type {self.type} not implemented')
+        self.save()
+
+    def create_electricity_transaction(self):
+        if self.type == Transaction.Type.CREDIT:
+            Client.objects.filter(client_id=self.client).update(electricity_balance=F('electricity_balance') + self.amount)
+        elif self.type == Transaction.Type.DEBIT:
+            Client.objects.filter(client_id=self.client).update(electricity_balance=F('electricity_balance') - self.amount)
+        else:
+            raise NotImplementedError(f'Transaction type {self.type} not implemented')
+        self.save()
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return f'Transaction {self.id}'
+
+
+# class Task(models.Model):
+#
+#     types = ((0, 'Нова заявка'), (1, 'Передано в роботу'), (2, 'Взято в роботу'), (3, 'Виконано'))
+#
+#     client = models.ForeignKey(Client, models.DO_NOTHING, related_name='TASK_client')
+#     datetime = models.DateTimeField()
+#     text = models.TextField()
+#     status = models.IntegerField(choices=types)
+#
+#     def __str__(self):
+#         return self.id
