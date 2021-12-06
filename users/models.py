@@ -117,7 +117,7 @@ class Client(User):
 
     @property
     def water_account(self) -> Account:
-        return Account.objects.get(type=Account.Type.COMMUNAL_SERVICE, client=self)
+        return Account.objects.get(type=Account.Type.WATER, client=self)
 
     @property
     def electricity_account(self) -> Account:
