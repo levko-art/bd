@@ -112,6 +112,18 @@ class Client(User):
             )
 
     @property
+    def communal_service_account(self) -> Account:
+        return Account.objects.get(type=Account.Type.COMMUNAL_SERVICE, client=self)
+
+    @property
+    def water_account(self) -> Counter:
+        return Account.objects.get(type=Account.Type.COMMUNAL_SERVICE, client=self)
+
+    @property
+    def electricity_account(self) -> Counter:
+        return Account.objects.get(type=Account.Type.ELECTRICITY, client=self)
+
+    @property
     def water_counter(self) -> Counter:
         return Counter.objects.get(type=Counter.Type.WATER, client=self)
 
