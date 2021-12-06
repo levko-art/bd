@@ -39,9 +39,35 @@ class Counter(models.Model):
         return f'Counter {self.id}'
 
 
+class Account(models.Model):
+
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+
+    class Type:
+        COMMUNAL_SERVICE = 0
+        WATER = 0
+        ELECTRICITY = 1
+
+        CHOICES = [
+            (COMMUNAL_SERVICE, 'Комунальний сервіс'),
+            (WATER, 'Водопостачання'),
+            (ELECTRICITY, 'Електроенергія'),
+        ]
+
+        _default_value, _name = CHOICES[0]
+
+    client = models.ForeignKey('Client', models.PROTECT)
+    balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return f'Account {self.id}'
+
+
 class Client(User):
 
-    client_id = models.CharField(max_length=9, blank=False)
+    id = models.CharField(max_length=9, blank=False)
 
     phone = models.CharField(max_length=10, blank=False)
     viber = models.BooleanField(default=False)
@@ -66,27 +92,24 @@ class Client(User):
     electricity = models.BooleanField(default=False)
     electricity_balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
 
-    def create_water_counter(self):
-        if self.water:
-            water_counter_data = requests.get(settings.external_url['water_counter']).json()
-            if water_counter_data:
-                Counter.objects.get_or_create(
-                    client=self,
-                    datetime=water_counter_data['datetime'],
-                    type=Counter.Type.WATER,
-                    value=water_counter_data['value']
-                )
+    def create_counters(self):
+        water_counter_data = requests.get(settings.external_url['water_counter']).json()
+        if water_counter_data:
+            Counter.objects.get_or_create(
+                client=self,
+                datetime=water_counter_data['datetime'],
+                type=Counter.Type.WATER,
+                value=water_counter_data['value']
+            )
 
-    def create_electricity_counter(self):
-        if self.electricity:
-            electricity_counter_data = requests.get(settings.external_url['electricity_counter']).json()
-            if electricity_counter_data:
-                Counter.objects.get_or_create(
-                    client=self,
-                    datetime=electricity_counter_data['datetime'],
-                    type=Counter.Type.WATER,
-                    value=electricity_counter_data['value']
-                )
+        electricity_counter_data = requests.get(settings.external_url['electricity_counter']).json()
+        if electricity_counter_data:
+            Counter.objects.get_or_create(
+                client=self,
+                datetime=electricity_counter_data['datetime'],
+                type=Counter.Type.WATER,
+                value=electricity_counter_data['value']
+            )
 
     @property
     def water_counter(self) -> Counter:
@@ -137,29 +160,11 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=7, decimal_places=2, default=0, null=False)
     appointment = models.IntegerField(choices=Appointment.CHOICES)
 
-    def create_communal_service_transaction(self):
+    def create_transaction(self):
         if self.type == Transaction.Type.CREDIT:
-            Client.objects.filter(client_id=self.client).update(communal_service_balance=F('communal_service_balance') + self.amount)
+            Account.objects.filter(client=self.client, type=self.type).update(balance=F('balance') + self.amount)
         elif self.type == Transaction.Type.DEBIT:
-            Client.objects.filter(client_id=self.client).update(communal_service_balance=F('communal_service_balance') - self.amount)
-        else:
-            raise NotImplementedError(f'Transaction type {self.type} not implemented')
-        self.save()
-
-    def create_water_transaction(self):
-        if self.type == Transaction.Type.CREDIT:
-            Client.objects.filter(client_id=self.client).update(water_balance=F('water_balance') + self.amount)
-        elif self.type == Transaction.Type.DEBIT:
-            Client.objects.filter(client_id=self.client).update(water_balance=F('water_balance') - self.amount)
-        else:
-            raise NotImplementedError(f'Transaction type {self.type} not implemented')
-        self.save()
-
-    def create_electricity_transaction(self):
-        if self.type == Transaction.Type.CREDIT:
-            Client.objects.filter(client_id=self.client).update(electricity_balance=F('electricity_balance') + self.amount)
-        elif self.type == Transaction.Type.DEBIT:
-            Client.objects.filter(client_id=self.client).update(electricity_balance=F('electricity_balance') - self.amount)
+            Account.objects.filter(client=self.client, type=self.type).update(balance=F('balance') - self.amount)
         else:
             raise NotImplementedError(f'Transaction type {self.type} not implemented')
         self.save()
