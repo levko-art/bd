@@ -1,16 +1,15 @@
 import datetime
 import uuid
 
+from BD_service import settings
+
 from django.db.models import F
-
-from bd_service import settings
-
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
 import requests
 
 
-__all__ = 'Client', 'Counter', 'Transaction'
+__all__ = 'Client', 'Counter', 'Account', 'Transaction'
 
 
 class Counter(models.Model):
@@ -45,8 +44,8 @@ class Account(models.Model):
 
     class Type:
         COMMUNAL_SERVICE = 0
-        WATER = 0
-        ELECTRICITY = 1
+        WATER = 1
+        ELECTRICITY = 2
 
         CHOICES = [
             (COMMUNAL_SERVICE, 'Комунальний сервіс'),
@@ -87,30 +86,6 @@ class Client(User):
     water = models.BooleanField(default=False)
     electricity = models.BooleanField(default=False)
 
-    def create_accounts(self):
-        Account.objects.get_or_create(type=Account.Type.COMMUNAL_SERVICE, client=self)
-        Account.objects.get_or_create(type=Account.Type.WATER, client=self)
-        Account.objects.get_or_create(type=Account.Type.ELECTRICITY, client=self)
-
-    def create_counters(self):
-        water_counter_data = requests.get(settings.external_url['water_counter']).json()
-        if water_counter_data:
-            Counter.objects.get_or_create(
-                client=self,
-                datetime=water_counter_data['datetime'],
-                type=Counter.Type.WATER,
-                value=water_counter_data['value']
-            )
-
-        electricity_counter_data = requests.get(settings.external_url['electricity_counter']).json()
-        if electricity_counter_data:
-            Counter.objects.get_or_create(
-                client=self,
-                datetime=electricity_counter_data['datetime'],
-                type=Counter.Type.WATER,
-                value=electricity_counter_data['value']
-            )
-
     @property
     def communal_service_account(self) -> Account:
         return Account.objects.get(type=Account.Type.COMMUNAL_SERVICE, client=self)
@@ -130,6 +105,44 @@ class Client(User):
     @property
     def electricity_counter(self) -> Counter:
         return Counter.objects.get(type=Counter.Type.ELECTRICITY, client=self)
+
+    def create_accounts(self):
+        communal_service_account_data = requests.get(settings.external_url['communal_service_account']).json()
+        water_account_data = requests.get(settings.external_url['water_account']).json()
+        electricity_account_data = requests.get(settings.external_url['electricity_account']).json()
+        with transaction.atomic():
+            Account.objects.get_or_create(
+                type=Account.Type.COMMUNAL_SERVICE,
+                client=self,
+                balance=communal_service_account_data['balance']
+            )
+            Account.objects.get_or_create(
+                type=Account.Type.WATER,
+                client=self,
+                balance=water_account_data['balance']
+            )
+            Account.objects.get_or_create(
+                type=Account.Type.ELECTRICITY,
+                client=self,
+                balance=electricity_account_data['balance']
+            )
+
+    def create_counters(self):
+        water_counter_data = requests.get(settings.external_url['water_counter']).json()
+        electricity_counter_data = requests.get(settings.external_url['electricity_counter']).json()
+        with transaction.atomic():
+            Counter.objects.get_or_create(
+                client=self,
+                datetime=water_counter_data['datetime'],
+                type=Counter.Type.WATER,
+                value=water_counter_data['value']
+            )
+            Counter.objects.get_or_create(
+                client=self,
+                datetime=electricity_counter_data['datetime'],
+                type=Counter.Type.WATER,
+                value=electricity_counter_data['value']
+            )
 
     objects = models.Manager()
 
