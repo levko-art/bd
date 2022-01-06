@@ -38,21 +38,15 @@
     <div class="row">
         <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'dashboard' %}">Загальний огляд</a>
+                <li class="nav-item active">
+                    <a class="nav-link active" href="{% url 'dashboard' %}">Загальний огляд</a>
+                    <span class="sr-only">(current)</span>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'building-service' %}">Обслуговування будинку
-                        <span class="sr-only">(current)</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'electricity' %}">Постачання електроенергії</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'water' %}">Постачання води
-                    </a>
-                </li>
+                {% for account in accounts %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url account.type_href %}"> {{account.type_description}} </a>
+                    </li>
+                {% endfor %}
             </ul>
 
             <ul class="nav nav-pills flex-column">
@@ -75,47 +69,27 @@
                         <tbody>
                         <tr>
                             <td><b>ПІБ</b></td>
-                            <td>Прізвище ім'я по-батькові</td>
+                            <td>{{client.client_full_name}}</td>
                         </tr>
                         <tr>
                             <td><b>Адреса</b></td>
-                            <td>Адреса</td>
+                            <td>{{client.housing_complex}}, {{client.region}} область, {{client.district}} район, {{client.town}}, вул. {{client.street}}, б. {{client.building}}/{{client.house_building}}, кв. {{client.flat}}</td>
                         </tr>
                         <tr>
                             <td><b>Особовий рахунок</b></td>
-                            <td>000000000</td>
-                        </tr>
-                        <tr>
-                            <td><b>Договір №</b></td>
-                            <td>0000</td>
+                            <td>{{client.username}}</td>
                         </tr>
                         <tr>
                             <td><b>e-mail</b></td>
-                            <td><input class="form-control mr-sm-2" type="text" placeholder="e-mail" aria-label="e-mail"></td>
+                            <td><input class="form-control mr-sm-2" type="text" placeholder="e-mail" aria-label="e-mail" value="{{client.email}}"></td>
                         </tr>
                         <tr>
                             <td><b>Телефон</b></td>
-                            <td><input class="form-control mr-sm-2" type="text" placeholder="+380000000000" aria-label="+380000000000"></td>
-                        </tr>
-                        <tr>
-                            <td><b>Наявність viber</b></td>
-                            <td>
-                                <label>
-                                    <input type="checkbox" value="remember-me"> Є за цим номером
-                                </label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b>Наявність telegram</b></td>
-                            <td>
-                                <label>
-                                    <input type="checkbox" value="remember-me"> Є за цим номером
-                                </label>
-                            </td>
+                            <td><input class="form-control mr-sm-2" type="text" placeholder="+380000000000" aria-label="+380000000000" value="{{client.phone}}"></td>
                         </tr>
                         <tr>
                             <td><b>Додатковий телефон</b></td>
-                            <td><input class="form-control mr-sm-2" type="text" placeholder="+380000000000" aria-label="+380000000000"></td>
+                            <td><input class="form-control mr-sm-2" type="text" placeholder="+380000000000" aria-label="+380000000000" value="{{client.reserve_phone}}"></td>
                         </tr>
                         <tr>
                             <td><b>Пароль</b></td>

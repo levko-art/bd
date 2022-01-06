@@ -38,27 +38,20 @@
     <div class="row">
         <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'dashboard' %}">Загальний огляд</a>
+                <li class="nav-item active">
+                    <a class="nav-link active" href="{% url 'dashboard' %}">Загальний огляд</a>
+                    <span class="sr-only">(current)</span>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'building-service' %}">Обслуговування будинку
-                        <span class="sr-only">(current)</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'electricity' %}">Постачання електроенергії</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'water' %}">Постачання води
-                    </a>
-                </li>
+                {% for account in accounts %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url account.type_href %}"> {{account.type_description}} </a>
+                    </li>
+                {% endfor %}
             </ul>
 
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item active">
-                    <a class="nav-link active" href="{% url 'master-call' %}">Викликати майстра</a>
-                    <span class="sr-only">(current)</span>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'master-call' %}">Викликати майстра</a>
                 </li>
             </ul>
         </nav>

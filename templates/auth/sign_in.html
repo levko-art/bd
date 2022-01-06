@@ -16,11 +16,11 @@
         {% csrf_token %}
 
         <h2 class="form-signin-heading">Будь ласка, увійдіть або зареєструйтесь</h2>
-        <label for="email" class="sr-only">e-mail або особовий рахунок</label>
-            <input name="email" id="email" type="email" class="form-control" placeholder="e-mail або особовий рахунок">
+        <label for="username" class="sr-only">e-mail або особовий рахунок</label>
+            <input name="username" id="username" type="text" class="form-control" placeholder="e-mail або особовий рахунок">
         <label for="password" class="sr-only">Пароль</label>
             <input name="password" id="password" type="password" class="form-control" placeholder="Пароль">
-        <button formaction="/handlers/login" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Увійти</button>
+        <button formaction="/auth/sign_in" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Увійти</button>
         <button formaction="/handlers/redirect_to_sign_in" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Зареєструватись</button>
     </form>
 

@@ -1,6 +1,10 @@
-from rest_framework import generics, permissions
-from users.models import Client, Transaction, Counter
-from users.serializers import ClientSerializer, TransactionSerializer, CounterSerializer
+import django_filters
+from rest_framework import generics
+
+from users.filters import TransactionFilter
+from users.models import Client, Transaction
+from users.paginations import TransactionPagination
+from users.serializers import ClientSerializer, TransactionSerializer
 
 
 class CreateClient(generics.CreateAPIView):
@@ -20,31 +24,13 @@ class CreateClient(generics.CreateAPIView):
 class GetUpdateClient(generics.RetrieveUpdateAPIView):
 
     """
-    Get & update client by UUID
-    [GET|PUT] api/client/<client_id>/
+    Get & update client by username
+    [GET|PUT] api/client/<username>/
     """
 
     queryset = Client.objects
     serializer_class = ClientSerializer
-    lookup_url_kwarg = 'client_id'
-
-    def get_queryset(self):
-        return super().get_queryset()
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-
-class GetUpdateCounter(generics.RetrieveUpdateAPIView):
-
-    """
-    Get & update counter by UUID
-    [GET|PUT] api/client/<client_id>/
-    """
-
-    queryset = Counter.objects
-    serializer_class = CounterSerializer
-    lookup_url_kwarg = 'client_id'
+    lookup_field = 'username'
 
     def get_queryset(self):
         return super().get_queryset()
@@ -56,44 +42,19 @@ class GetUpdateCounter(generics.RetrieveUpdateAPIView):
 class ListCreateTransaction(generics.ListCreateAPIView):
 
     """
-    Create & get list of transactions
-    [POST|GET] api/client/<client_id>/transaction/
+    Create transaction
+    [GET|POST] api/client/<username>/transaction/
     """
 
     queryset = Transaction.objects
     serializer_class = TransactionSerializer
+    lookup_field = 'username'
+    pagination_class = TransactionPagination
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_class = TransactionFilter
+
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user)
 
     def perform_create(self, serializer):
         return super().perform_create(serializer)
-
-    def get_queryset(self):
-        return super().get_queryset().filter(client__id=self.kwargs['client'])
-
-
-class GetTransaction(generics.CreateAPIView):
-
-    """
-    Get transaction by UUID
-    [GET] api/client/<client_id>/transaction/<transaction_id>/
-    """
-
-    queryset = Transaction.objects
-    serializer_class = TransactionSerializer
-
-    def get_queryset(self):
-        return super().get_queryset().filter(id=self.kwargs['client_id'])
-
-# class ListCreateCounter(generics.ListCreateAPIView):
-#
-#     """
-#     client/<int:client_id>/counter
-#     """
-#
-#     queryset = Counter.objects
-#     serializer_class = CounterSerializer
-#
-#     def get_queryset(self):
-#         return super().get_queryset().filter(id=self.kwargs['counter_id'])
-#
-#     def perform_create(self, serializer):
-#         return super().perform_create(serializer)

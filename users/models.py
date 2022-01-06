@@ -1,15 +1,16 @@
 import datetime
 import uuid
 
-from BD_service import settings
-
 from django.db.models import F
-from django.db import models, transaction
+
+from bd_service import settings
+
+from django.db import models
 from django.contrib.auth.models import User
 import requests
 
 
-__all__ = 'Client', 'Counter', 'Account', 'Transaction'
+__all__ = 'Account', 'Client', 'Counter', 'Transaction'
 
 
 class Counter(models.Model):
@@ -57,6 +58,32 @@ class Account(models.Model):
 
     client = models.ForeignKey('Client', models.PROTECT)
     balance = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+    type = models.IntegerField(choices=Type.CHOICES)
+    is_active = models.BooleanField(default=False)
+
+    @property
+    def type_description(self):
+        if self.type == 0:
+            return 'Комунальний сервіс'
+        elif self.type == 1:
+            return 'Водопостачання'
+        elif self.type == 2:
+            return 'Електроенергія'
+
+    @property
+    def type_href(self):
+        if self.type == 0:
+            return 'building-service'
+        elif self.type == 1:
+            return 'water'
+        elif self.type == 2:
+            return 'electricity'
+
+    contract = models.CharField(max_length=10, default=0)
+    number = models.CharField(max_length=9, default=0)
+    traffic = models.CharField(max_length=10, default=0)
+    requisites = models.CharField(max_length=29, default=0)
+    payment_target = models.CharField(max_length=30, default=0)
 
     objects = models.Manager()
 
@@ -66,7 +93,7 @@ class Account(models.Model):
 
 class Client(User):
 
-    id = models.CharField(max_length=9, blank=False)
+    client_full_name = models.CharField(max_length=60, blank=False, default='ПІБ')
 
     phone = models.CharField(max_length=10, blank=False)
     viber = models.BooleanField(default=False)
@@ -85,6 +112,53 @@ class Client(User):
     communal_service = models.BooleanField(default=False)
     water = models.BooleanField(default=False)
     electricity = models.BooleanField(default=False)
+
+    def create_accounts(self):
+        communal_service_account_data = requests.get(settings.external_url['communal_service_account']).json()
+        if communal_service_account_data:
+            Account.objects.get_or_create(
+                client=self,
+                balance=communal_service_account_data['balance'],
+                type=Account.Type.COMMUNAL_SERVICE,
+                is_active=self.communal_service
+            )
+
+        water_account_data = requests.get(settings.external_url['water_account']).json()
+        if water_account_data:
+            Account.objects.get_or_create(
+                client=self,
+                balance=water_account_data['balance'],
+                type=Account.Type.WATER,
+                is_active=self.water
+            )
+
+        electricity_account_data = requests.get(settings.external_url['electricity_account']).json()
+        if electricity_account_data:
+            Account.objects.get_or_create(
+                client=self,
+                balance=electricity_account_data['balance'],
+                type=Account.Type.ELECTRICITY,
+                is_active=self.electricity
+            )
+
+    def create_counters(self):
+        water_counter_data = requests.get(settings.external_url['water_counter']).json()
+        if water_counter_data:
+            Counter.objects.get_or_create(
+                client=self,
+                datetime=water_counter_data['datetime'],
+                type=Counter.Type.WATER,
+                value=water_counter_data['value']
+            )
+
+        electricity_counter_data = requests.get(settings.external_url['electricity_counter']).json()
+        if electricity_counter_data:
+            Counter.objects.get_or_create(
+                client=self,
+                datetime=electricity_counter_data['datetime'],
+                type=Counter.Type.ELECTRICITY,
+                value=electricity_counter_data['value']
+            )
 
     @property
     def communal_service_account(self) -> Account:
@@ -105,44 +179,6 @@ class Client(User):
     @property
     def electricity_counter(self) -> Counter:
         return Counter.objects.get(type=Counter.Type.ELECTRICITY, client=self)
-
-    def create_accounts(self):
-        communal_service_account_data = requests.get(settings.external_url['communal_service_account']).json()
-        water_account_data = requests.get(settings.external_url['water_account']).json()
-        electricity_account_data = requests.get(settings.external_url['electricity_account']).json()
-        with transaction.atomic():
-            Account.objects.get_or_create(
-                type=Account.Type.COMMUNAL_SERVICE,
-                client=self,
-                balance=communal_service_account_data['balance']
-            )
-            Account.objects.get_or_create(
-                type=Account.Type.WATER,
-                client=self,
-                balance=water_account_data['balance']
-            )
-            Account.objects.get_or_create(
-                type=Account.Type.ELECTRICITY,
-                client=self,
-                balance=electricity_account_data['balance']
-            )
-
-    def create_counters(self):
-        water_counter_data = requests.get(settings.external_url['water_counter']).json()
-        electricity_counter_data = requests.get(settings.external_url['electricity_counter']).json()
-        with transaction.atomic():
-            Counter.objects.get_or_create(
-                client=self,
-                datetime=water_counter_data['datetime'],
-                type=Counter.Type.WATER,
-                value=water_counter_data['value']
-            )
-            Counter.objects.get_or_create(
-                client=self,
-                datetime=electricity_counter_data['datetime'],
-                type=Counter.Type.WATER,
-                value=electricity_counter_data['value']
-            )
 
     objects = models.Manager()
 
@@ -176,6 +212,21 @@ class Transaction(models.Model):
 
         _default_value, _name = CHOICES[0]
 
+    class Status:
+        UNDEFINED = 0
+        PENDING = 1
+        SUCCESS = 2
+        FAILED = 3
+
+        CHOICES = [
+            (UNDEFINED, 'Не визначено'),
+            (PENDING, 'В обробці'),
+            (SUCCESS, 'Успішно'),
+            (FAILED, 'Забраковано'),
+        ]
+
+        _default_value, _name = CHOICES[0]
+
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
 
     date = models.DateField()
@@ -184,12 +235,33 @@ class Transaction(models.Model):
     type = models.IntegerField(choices=Type.CHOICES)
     amount = models.DecimalField(max_digits=7, decimal_places=2, default=0, null=False)
     appointment = models.IntegerField(choices=Appointment.CHOICES)
+    status = models.IntegerField(choices=Status.CHOICES, null=True)
+
+    @property
+    def type_description(self):
+        if self.type == 0:
+            return 'Нарахування'
+        elif self.type == 1:
+            return 'Оплата'
+
+    @property
+    def status_description(self):
+        if self.type == 0:
+            return 'Не визначено'
+        elif self.type == 1:
+            return 'В обробці'
+        elif self.type == 2:
+            return 'Успішно'
+        elif self.type == 2:
+            return 'Забраковано'
 
     def create_transaction(self):
         if self.type == Transaction.Type.CREDIT:
             Account.objects.filter(client=self.client, type=self.type).update(balance=F('balance') + self.amount)
+            self.status = self.Status.SUCCESS
         elif self.type == Transaction.Type.DEBIT:
             Account.objects.filter(client=self.client, type=self.type).update(balance=F('balance') - self.amount)
+            self.status = self.Status.SUCCESS
         else:
             raise NotImplementedError(f'Transaction type {self.type} not implemented')
         self.save()

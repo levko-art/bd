@@ -38,20 +38,15 @@
     <div class="row">
         <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'dashboard' %}">Загальний огляд</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'building-service' %}">Обслуговування будинку
-                    </a>
-                </li>
                 <li class="nav-item active">
-                    <a class="nav-link active" href="{% url 'electricity' %}">Постачання електроенергії</a>
+                    <a class="nav-link active" href="{% url 'dashboard' %}">Загальний огляд</a>
                     <span class="sr-only">(current)</span>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'water' %}">Постачання води</a>
-                </li>
+                {% for account in accounts %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url account.type_href %}"> {{account.type_description}} </a>
+                    </li>
+                {% endfor %}
             </ul>
 
             <ul class="nav nav-pills flex-column">
@@ -67,22 +62,22 @@
 
             <div class="jumbotron" style="overflow: auto;">
 
-                <h1>Постачання електроенергії</h1>
+                <h1>{{target_account.type_description}}</h1>
 
                 <div style="float: left; width: 15%; margin: 1%">
                     <img src="data:image/gif;base64,R0lGODlhAQABAIABAAJ12AAAACwAAAAAAQABAAACAkQBADs=" width="150" height="150" class="img-fluid rounded-circle" alt="Generic placeholder thumbnail">
                 </div>
 
                 <div style="float: left; width: 25%; margin: 1%; font-family: 'Arial Black'; text-align: center; margin-top: 4%; font-size: 250%;">
-                    <p> <font color="green"> 250 грн </font> </p>
+                    <p> <font color="green"> {{target_account.balance}} </font> </p>
                 </div>
 
                 <div style="float: left; width: 50%; margin: 1%">
-                    <p class="lead"> <b> Договір № </b>
-                        <br> <b> Особовий рахунок: </b>
-                        <br> <b> Тариф: </b>
-                        <br> <b> Рахунок для сплати: </b>
-                        <br> <b> Призначення платежу: </b>
+                    <p class="lead"> <b> Договір № {{target_account.contract}} </b>
+                        <br> <b> Особовий рахунок: {{target_account.number}} </b>
+                        <br> <b> Тариф: {{target_account.traffic}} </b>
+                        <br> <b> Рахунок для сплати: {{target_account.requisites}} </b>
+                        <br> <b> Призначення платежу: {{target_account.payment_target}} </b>
                         <br> </p>
                 </div>
 
@@ -110,115 +105,23 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Дата транзакції</th>
                         <th>Час транзакції</th>
                         <th>Тип транзакції</th>
                         <th>Сума</th>
-                        <th>Баланс після операції</th>
-                        <th>Показники лічильника</th>
+                        <th>Статус</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>6</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>7</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>8</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>9</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
-                    <tr>
-                        <td>10</td>
-                        <td>01.01.2001</td>
-                        <td>00:00</td>
-                        <td>Нарахування</td>
-                        <td>100 грн</td>
-                        <td>0 грн</td>
-                        <td>000000000</td>
-                    </tr>
+                    {% for transaction in transactions %}
+                        <tr>
+                            <td> {{transaction.date}} </td>
+                            <td> {{transaction.time}} </td>
+                            <td> {{transaction.type_description}} </td>
+                            <td> {{transaction.amount}} </td>
+                            <td> {{transaction.status_description}} </td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
