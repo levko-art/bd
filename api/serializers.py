@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from users.models import Client, Transaction, Counter
+from users.models import Client, Counter, Task, Transaction
+from service.models import Master
 
-
-__all__ = 'ClientSerializer', 'CounterSerializer', 'TransactionSerializer'
+__all__ = 'ClientSerializer', 'CounterSerializer', 'TransactionSerializer', 'TaskSerializer'
 
 
 class CounterSerializer(serializers.Serializer):
@@ -93,3 +93,23 @@ class TransactionSerializer(serializers.Serializer):
 
     def __str__(self):
         return 'Serializer for transaction model'
+
+
+class TaskSerializer(serializers.Serializer):
+
+    statuses = ((0, 'Нова заявка'), (1, 'Передано в роботу'), (2, 'Взято в роботу'), (3, 'Виконано'))
+    appointments = ((0, 'Комунальний сервіс'), (1, 'Сантехніка'), (2, 'Електрика'))
+
+    client = serializers.SlugRelatedField(queryset=Client.objects.all(), slug_field='username')
+    text = serializers.CharField()
+    status = serializers.ChoiceField(choices=statuses)
+    appointment = serializers.ChoiceField(choices=appointments)
+
+    def create(self, validated_data):
+        return Task.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError('`update()` must be implemented.')
+
+    def __str__(self):
+        return 'Serializer for task model'

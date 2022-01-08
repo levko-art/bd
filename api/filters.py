@@ -1,10 +1,12 @@
 import django_filters
 
-from users.models import Transaction
+from users.models import Task, Transaction
 
 
-class TransactionFilter(django_filters.FilterSet):
+__all__ = 'TaskFilter', 'TransactionFilter'
 
+
+class BaseFilter(django_filters.FilterSet):
     def __init__(self, data=None, *args, **kwargs):
         if data is not None:
             data = data.copy()
@@ -19,6 +21,16 @@ class TransactionFilter(django_filters.FilterSet):
         field_name="created_at", lookup_expr="gte", label='created_at From'
     )
 
+
+class TransactionFilter(BaseFilter):
+
     class Meta:
         model = Transaction
+        fields = ['created_at_to', 'created_at_from', ]
+
+
+class TaskFilter(BaseFilter):
+
+    class Meta:
+        model = Task
         fields = ['created_at_to', 'created_at_from', ]

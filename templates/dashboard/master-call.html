@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="{% static '/css/custom-css-bootstrap-magic-2020-12-30.css' %}" >
     <link rel="stylesheet" href="{% static '/css/custom-variables-bootstrap-2020-12-30.css' %}" >
     <link rel="stylesheet" href="{% static '/css/base.css' %}" >
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
 </head>
 <body>
 <header>
@@ -60,13 +64,45 @@
 
             <h1>Виклик майстра</h1>
 
-            <div class="jumbotron">
-                <p class="lead" align="center">Коротко опишіть суть вашого звернення та що необхідно полагодити та наш майстер зв'яжеться з вами найближчим часом.</p>
-                <input class="form-control mr-sm-2" type="text" style="margin-top: 3%; margin-bottom: 3%;">
-                <p>
-                    <a class="btn btn-lg btn-success" style="width: 100%" href="#" role="button">Надіслати заявку</a>
-                </p>
-            </div>
+            <form class="form" action="{% url 'list-create-task' user.username %}" method="post" novalidate onsubmit="setTimeout(function(){window.location.reload();},10);">
+                {% csrf_token %}
+                <div class="jumbotron">
+                    <p class="lead" align="center">Коротко опишіть суть вашого звернення, що необхідно полагодити та наш майстер зв'яжеться з вами найближчим часом.</p>
+                    <textarea name="text" id="text" rows="10" class="form-control" placeholder="Текст заявки"></textarea><br>
+                    <input type="hidden" id="client" name="client" value="{{user.username}}">
+                    <input type="hidden" id="status" name="status" value="0">
+                    <div class="form-group">
+                        <label for="appointment"> До якої категорії відноситься ваше питання? </label>
+                        <select class="form-control" id="appointment" name="appointment">
+                            <option value="0">Під'їзд та прибудинкова територія</option>
+                            <option value="1">Сантехніка</option>
+                            <option value="2">Електрика</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" value="Submit">Надіслати</button>
+                </div>
+            </form>
+
+            {% for task in tasks %}
+
+                <div class="jumbotron" style="overflow: auto;">
+
+                    <h1> {{task.status_description}} </h1>
+
+                    <div style="float: left; width: 15%; margin: 1%">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIABAAJ12AAAACwAAAAAAQABAAACAkQBADs=" width="150" height="150" class="img-fluid rounded-circle" alt="Generic placeholder thumbnail">
+                    </div>
+
+                    <div style="float: left; width: 55%; margin: 1%">
+                        <p class="lead">
+                            <b> {{task.datetime}} </b> <br>
+                            <b> {{task.appointment_description}} </b> <br>
+                            <b> {{task.text}} </b> <br>
+                        </p>
+                    </div>
+                </div>
+
+            {% endfor %}
 
         </main>
     </div>

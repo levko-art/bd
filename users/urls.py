@@ -9,5 +9,7 @@ urlpatterns = [
     path('water/', water, name="water"),
     path('master_call/', master_call, name="master-call"),
     path('information/', information, name="information"),
-    path('questionnaire/', questionnaire, name="questionnaire")
+    path('questionnaire/', questionnaire, name="questionnaire"),
+    path('', sign_in, name="sign_in"),
+    path('sign_up', sign_up, name="sign_up"),
 ]

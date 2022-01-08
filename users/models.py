@@ -2,7 +2,7 @@ import datetime
 import uuid
 
 from django.db.models import F
-
+from django.utils.timezone import now
 from bd_service import settings
 
 from django.db import models
@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 import requests
 
 
-__all__ = 'Account', 'Client', 'Counter', 'Transaction'
+__all__ = 'Account', 'Client', 'Counter', 'Task', 'Transaction'
 
 
 class Counter(models.Model):
@@ -246,13 +246,13 @@ class Transaction(models.Model):
 
     @property
     def status_description(self):
-        if self.type == 0:
+        if self.status == 0:
             return 'Не визначено'
-        elif self.type == 1:
+        elif self.status == 1:
             return 'В обробці'
-        elif self.type == 2:
+        elif self.status == 2:
             return 'Успішно'
-        elif self.type == 2:
+        elif self.status == 3:
             return 'Забраковано'
 
     def create_transaction(self):
@@ -272,14 +272,40 @@ class Transaction(models.Model):
         return f'Transaction {self.id}'
 
 
-# class Task(models.Model):
-#
-#     types = ((0, 'Нова заявка'), (1, 'Передано в роботу'), (2, 'Взято в роботу'), (3, 'Виконано'))
-#
-#     client = models.ForeignKey(Client, models.DO_NOTHING, related_name='TASK_client')
-#     datetime = models.DateTimeField()
-#     text = models.TextField()
-#     status = models.IntegerField(choices=types)
-#
-#     def __str__(self):
-#         return self.id
+class Task(models.Model):
+
+    statuses = ((0, 'Нова заявка'), (1, 'Передано в роботу'), (2, 'Взято в роботу'), (3, 'Виконано'))
+    appointments = ((0, 'Комунальний сервіс'), (1, 'Сантехніка'), (2, 'Електрика'))
+
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+
+    client = models.ForeignKey(Client, models.DO_NOTHING)
+    datetime = models.DateTimeField(default=now)
+    text = models.TextField()
+    status = models.IntegerField(choices=statuses)
+    appointment = models.IntegerField(choices=appointments)
+
+    @property
+    def status_description(self):
+        if self.status == 0:
+            return 'Нова заявка'
+        elif self.status == 1:
+            return 'Передано в роботу'
+        elif self.status == 2:
+            return 'Взято в роботу'
+        elif self.status == 3:
+            return 'Виконано'
+
+    @property
+    def appointment_description(self):
+        if self.appointment == 0:
+            return 'Комунальний сервіс'
+        elif self.appointment == 1:
+            return 'Сантехніка'
+        elif self.appointment == 2:
+            return 'Електрика'
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return self.id

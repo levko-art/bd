@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 
 class UsersConfig(AppConfig):
     name = 'users'
-    verbose_name = "BD_service"
+    verbose_name = "bd_service"
 
     def ready(self):
         import users.signals

@@ -73,12 +73,14 @@
                 </div>
 
                 <div style="float: left; width: 50%; margin: 1%">
-                    <p class="lead"> <b> Договір № {{target_account.contract}} </b>
+                    <p class="lead">
+                        <b> Договір № {{target_account.contract}} </b>
                         <br> <b> Особовий рахунок: {{target_account.number}} </b>
                         <br> <b> Тариф: {{target_account.traffic}} </b>
                         <br> <b> Рахунок для сплати: {{target_account.requisites}} </b>
                         <br> <b> Призначення платежу: {{target_account.payment_target}} </b>
-                        <br> </p>
+                        <br>
+                    </p>
                 </div>
 
             </div>
@@ -91,49 +93,87 @@
                 <a class="btn btn-lg btn-success" style="width: 100%" href="../../components/navbar/" role="button">Здійснити оплату онлайн &raquo;</a>
             </div>
 
-            <div style="float: top; margin-top: 1%; margin-bottom: 2%">
-                <p> <b> Введення поточних показників лічильника </b> </p>
-                <form class="form-inline my-2 my-lg-0">
-                    <input class="form-control mr-sm-2" type="text" placeholder="Показники лічильника" aria-label="Показники лічильника">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Надіслати</button>
-                </form>
-            </div>
+            <div>
+                <div style="width: 65%; float: left; margin-right: 1%">
+                    <h2>Фінансова історія</h2>
+                    <p> <b> Зверніть увагу. </b> Платежі в історії з'являються лише після їх обробки бухгалтерією. </p>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Дата транзакції</th>
+                                    <th>Час транзакції</th>
+                                    <th>Тип транзакції</th>
+                                    <th>Сума</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions %}
+                                    <tr>
+                                        <td> {{transaction.date}} </td>
+                                        <td> {{transaction.time}} </td>
+                                        <td> {{transaction.type_description}} </td>
+                                        <td> {{transaction.amount}} </td>
+                                        <td> {{transaction.status_description}} </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
 
-            <h2>Фінансова історія</h2>
-            <p> <b> Зверніть увагу. </b> Платежі в історії з'являються лише після їх обробки бухгалтерією. </p>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>Дата транзакції</th>
-                        <th>Час транзакції</th>
-                        <th>Тип транзакції</th>
-                        <th>Сума</th>
-                        <th>Статус</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for transaction in transactions %}
-                        <tr>
-                            <td> {{transaction.date}} </td>
-                            <td> {{transaction.time}} </td>
-                            <td> {{transaction.type_description}} </td>
-                            <td> {{transaction.amount}} </td>
-                            <td> {{transaction.status_description}} </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    <div style="margin-top: 1%; margin-bottom: 1%">
+                        <form>
+                            <a class="btn btn-lg btn-primary" style="width: 100%" href="../../components/navbar/" role="button">Повна виписка &raquo;</a>
+                        </form>
+                    </div>
 
-            <div style="margin-top: 1%; margin-bottom: 1%">
-                <a class="btn btn-lg btn-primary" style="width: 100%" href="../../components/navbar/" role="button">Повна виписка &raquo;</a>
-            </div>
+                    <div style="margin-top: 1%; margin-bottom: 2%">
+                        <form>
+                            <a class="btn btn-lg btn-success" style="width: 100%" href="../../components/navbar/" role="button">Онлайн оплата &raquo;</a>
+                        </form>
+                    </div>
+                </div>
 
-            <div style="margin-top: 1%; margin-bottom: 2%">
-                <a class="btn btn-lg btn-success" style="width: 100%" href="../../components/navbar/" role="button">Онлайн оплата &raquo;</a>
-            </div>
+                <div style="width: 34%; float: left;">
 
+                    <h2>Показники лічильника</h2>
+                    <p> Історія і введення показників лічильника. </p>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Показники</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions %}
+                                    <tr>
+                                        <td> {{transaction.amount}} </td>
+                                        <td> {{transaction.status_description}} </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                    <div style="margin-top: 1%; margin-bottom: 1%">
+                        <form>
+                            <a class="btn btn-lg btn-primary" style="width: 100%" href="../../components/navbar/" role="button">Повна виписка &raquo;</a>
+                        </form>
+                    </div>
+
+                    <div style="margin-top: 2%; margin-bottom: 1%">
+                        <form class="form-inline my-2 my-lg-0">
+                            <input class="form-control mr-sm-2" style="width: 50%" type="text" placeholder="Показники лічильника" aria-label="Показники лічильника">
+                            <button class="btn btn-lg btn-success" style="width: 48%" type="submit">Надіслати</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 </div>
