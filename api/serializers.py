@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from users.models import Client, Counter, Task, Transaction
-from service.models import Master
+from users.models import Client, Counter, Metric, Task, Transaction
 
-__all__ = 'ClientSerializer', 'CounterSerializer', 'TransactionSerializer', 'TaskSerializer'
+__all__ = 'ClientSerializer', 'CounterSerializer', 'TransactionSerializer', 'MetricSerializer', 'TaskSerializer'
 
 
 class CounterSerializer(serializers.Serializer):
@@ -83,7 +82,7 @@ class TransactionSerializer(serializers.Serializer):
     client = serializers.SlugRelatedField(queryset=Client.objects.all(), slug_field='username')
     type = serializers.ChoiceField(choices=types)
     amount = serializers.DecimalField(max_digits=7, decimal_places=2, default=0)
-    appointment = serializers.ChoiceField(choices=types)
+    appointment = serializers.ChoiceField(choices=appointments)
 
     def create(self, validated_data):
         return Transaction.objects.create(**validated_data)
@@ -95,13 +94,32 @@ class TransactionSerializer(serializers.Serializer):
         return 'Serializer for transaction model'
 
 
+class MetricSerializer(serializers.Serializer):
+
+    appointments = ((1, 'Водопостачання'), (2, 'Електропостачання'))
+
+    date = serializers.DateField()
+    client = serializers.SlugRelatedField(queryset=Client.objects.all(), slug_field='username')
+    value = serializers.CharField()
+    appointment = serializers.ChoiceField(choices=appointments)
+
+    def create(self, validated_data):
+        return Metric.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError('`update()` must be implemented.')
+
+    def __str__(self):
+        return 'Serializer for metric model'
+
+
 class TaskSerializer(serializers.Serializer):
 
     statuses = ((0, 'Нова заявка'), (1, 'Передано в роботу'), (2, 'Взято в роботу'), (3, 'Виконано'))
     appointments = ((0, 'Комунальний сервіс'), (1, 'Сантехніка'), (2, 'Електрика'))
 
     client = serializers.SlugRelatedField(queryset=Client.objects.all(), slug_field='username')
-    text = serializers.CharField()
+    text = serializers.CharField(max_length=10)
     status = serializers.ChoiceField(choices=statuses)
     appointment = serializers.ChoiceField(choices=appointments)
 

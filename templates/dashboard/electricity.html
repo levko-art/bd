@@ -96,7 +96,7 @@
             <div>
                 <div style="width: 65%; float: left; margin-right: 1%">
                     <h2>Фінансова історія</h2>
-                    <p> <b> Зверніть увагу. </b> Платежі в історії з'являються лише після їх обробки бухгалтерією. </p>
+                    <p> <b> Зверніть увагу. </b> Платежі в історії підтверджуються лише після їх обробки бухгалтерією. </p>
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
@@ -149,10 +149,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for transaction in transactions %}
+                                {% for metric in metrics %}
                                     <tr>
-                                        <td> {{transaction.amount}} </td>
-                                        <td> {{transaction.status_description}} </td>
+                                        <td> {{metric.date}} </td>
+                                        <td> {{metric.value}} </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

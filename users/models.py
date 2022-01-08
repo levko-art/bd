@@ -9,8 +9,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import requests
 
-
-__all__ = 'Account', 'Client', 'Counter', 'Task', 'Transaction'
+__all__ = 'Account', 'Client', 'Counter', 'Metric', 'Task', 'Transaction'
 
 
 class Counter(models.Model):
@@ -188,6 +187,8 @@ class Client(User):
 
 class Transaction(models.Model):
 
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+
     class Type:
         DEBIT = 0
         CREDIT = 1
@@ -227,8 +228,6 @@ class Transaction(models.Model):
 
         _default_value, _name = CHOICES[0]
 
-    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-
     date = models.DateField()
     time = models.TimeField()
     client = models.ForeignKey('Client', models.DO_NOTHING)
@@ -257,10 +256,10 @@ class Transaction(models.Model):
 
     def create_transaction(self):
         if self.type == Transaction.Type.CREDIT:
-            Account.objects.filter(client=self.client, type=self.type).update(balance=F('balance') + self.amount)
+            Account.objects.filter(client=self.client, type=self.appointment).update(balance=F('balance') + self.amount)
             self.status = self.Status.SUCCESS
         elif self.type == Transaction.Type.DEBIT:
-            Account.objects.filter(client=self.client, type=self.type).update(balance=F('balance') - self.amount)
+            Account.objects.filter(client=self.client, type=self.appointment).update(balance=F('balance') - self.amount)
             self.status = self.Status.SUCCESS
         else:
             raise NotImplementedError(f'Transaction type {self.type} not implemented')
@@ -270,6 +269,36 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f'Transaction {self.id}'
+
+
+class Metric(models.Model):
+
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+
+    class Appointment:
+        WATER = 1
+        ELECTRICITY = 2
+
+        CHOICES = [
+            (WATER, 'Водопостачання'),
+            (ELECTRICITY, 'Електропостачання'),
+        ]
+
+        _default_value, _name = CHOICES[0]
+
+    date = models.DateField()
+    client = models.ForeignKey('Client', models.DO_NOTHING)
+    value = models.CharField(max_length=10, default=0)
+    appointment = models.IntegerField(choices=Appointment.CHOICES)
+
+    def create_metric(self):
+        Counter.objects.filter(client=self.client, type=self.appointment).update(value=self.value)
+        self.save()
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return f'Metric {self.id}'
 
 
 class Task(models.Model):

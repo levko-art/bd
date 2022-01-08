@@ -2,9 +2,11 @@ import django_filters
 from rest_framework import generics
 
 from api.filters import TaskFilter, TransactionFilter
-from users.models import Client, Task, Transaction
+from users.models import Client, Metric, Task, Transaction
 from api.paginations import TaskPagination, TransactionPagination
-from api.serializers import ClientSerializer, TaskSerializer, TransactionSerializer
+from api.serializers import ClientSerializer, MetricSerializer, TaskSerializer, TransactionSerializer
+
+__all__ = 'CreateClient', 'GetUpdateClient', 'ListCreateTransaction', 'ListCreateMetric', 'ListCreateTask'
 
 
 class CreateClient(generics.CreateAPIView):
@@ -52,6 +54,23 @@ class ListCreateTransaction(generics.ListCreateAPIView):
     pagination_class = TransactionPagination
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_class = TransactionFilter
+
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user)
+
+    def perform_create(self, serializer):
+        return super().perform_create(serializer)
+
+
+class ListCreateMetric(generics.ListCreateAPIView):
+    """
+    List & create task
+    [GET|POST] api/client/<username>/task/
+    """
+
+    queryset = Metric.objects
+    serializer_class = MetricSerializer
+    lookup_field = 'username'
 
     def get_queryset(self):
         return super().get_queryset().filter(client=self.request.user)
