@@ -84,7 +84,12 @@
             </div>
 
             <div style="float: top; margin-top: 1%; margin-bottom: 1%">
-                <a class="btn btn-lg btn-primary" style="width: 100%" href="../../components/navbar/" role="button">Отримати електронну квитанцію &raquo;</a>
+                <form action="{% url 'generate-report' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="appointment" name="appointment" value="0">
+                    <button class="btn btn-lg btn-primary" style="width: 100%" type="submit" value="Submit">Отримати електронну квитанцію &raquo;</button>
+                </form>
+<!--                <a class="btn btn-lg btn-primary" style="width: 100%" href="" role="button">Отримати електронну квитанцію &raquo;</a>-->
             </div>
 
             <div style="float: top; margin-top: 1%; margin-bottom: 2%">
@@ -118,9 +123,11 @@
                 </table>
             </div>
 
-            <div style="margin-top: 1%; margin-bottom: 1%">
-                <a class="btn btn-lg btn-primary" style="width: 100%" href="../../components/navbar/" role="button">Повна виписка &raquo;</a>
-            </div>
+            <form action="{% url 'generate-report' %}" method="post">
+                {% csrf_token %}
+                    <input type="hidden" name="appointment" value="0">
+                    <button class="btn btn-lg btn-primary" style="width: 100%" type="submit" value="Submit">Повна виписка &raquo;</button>
+            </form>
 
             <div style="margin-top: 1%; margin-bottom: 2%">
                 <a class="btn btn-lg btn-success" style="width: 100%" href="../../components/navbar/" role="button">Онлайн оплата &raquo;</a>

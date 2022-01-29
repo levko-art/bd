@@ -98,7 +98,6 @@ class MetricSerializer(serializers.Serializer):
 
     appointments = ((1, 'Водопостачання'), (2, 'Електропостачання'))
 
-    date = serializers.DateField()
     client = serializers.SlugRelatedField(queryset=Client.objects.all(), slug_field='username')
     value = serializers.CharField()
     appointment = serializers.ChoiceField(choices=appointments)

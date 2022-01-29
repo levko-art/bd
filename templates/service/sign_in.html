@@ -20,9 +20,8 @@
             <input name="username" id="username" type="text" class="form-control" placeholder="e-mail або особовий рахунок">
         <label for="password" class="sr-only">Пароль</label>
             <input name="password" id="password" type="password" class="form-control" placeholder="Пароль">
-        <button formaction="{% url 'sign-in' %}" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Увійти</button>
-        <button formaction="sign_up" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Зареєструватись</button>
-        <button formaction="sign_up" formmethod="post" formnovalidate class="btn btn-lg btn-success btn-block" type="submit">Нагадати пароль</button>
+        <button formaction="/auth/service/sign_in" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Увійти</button>
+        <button formaction="/handlers/redirect_to_sign_in" formmethod="post" formnovalidate class="btn btn-lg btn-primary btn-block" type="submit">Зареєструватись</button>
     </form>
 
 </div>

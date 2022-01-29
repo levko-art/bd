@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 from .models import Account, Client, Metric, Task, Transaction
+from service.models import StaffPhone
 
 
 def sign_up(request):
@@ -30,8 +31,8 @@ def building_service(request):
 def water(request):
     accounts = Account.objects.filter(client=request.user, is_active=True)
     target_account = Account.objects.filter(client=request.user, is_active=True, type=1)[0]
-    transactions = Transaction.objects.filter(client=request.user, appointment=1).order_by('-date')[:10]
-    metrics = Metric.objects.filter(client=request.user, appointment=1).order_by('-date')[:10]
+    transactions = Transaction.objects.filter(client=request.user, appointment=1).order_by('-date')[:10][::-1]
+    metrics = Metric.objects.filter(client=request.user, appointment=1).order_by('-date')[:10][::-1]
     return render(
         request,
         'dashboard/water.html',
@@ -42,8 +43,8 @@ def water(request):
 def electricity(request):
     accounts = Account.objects.filter(client=request.user, is_active=True)
     target_account = Account.objects.filter(client=request.user, is_active=True, type=2)[0]
-    transactions = Transaction.objects.filter(client=request.user, appointment=2).order_by('-date')[:10]
-    metrics = Metric.objects.filter(client=request.user, appointment=2).order_by('-date')[:10]
+    transactions = Transaction.objects.filter(client=request.user, appointment=2).order_by('-date')[:10][::-1]
+    metrics = Metric.objects.filter(client=request.user, appointment=2).order_by('-date')[:10][::-1]
     return render(
         request,
         'dashboard/electricity.html',
@@ -60,7 +61,8 @@ def master_call(request):
 
 def information(request):
     accounts = Account.objects.filter(client=request.user, is_active=True)
-    return render(request, 'dashboard/information.html', {'accounts': accounts})
+    staff_phones = StaffPhone.objects.all()
+    return render(request, 'dashboard/information.html', {'accounts': accounts, 'staff_phones': staff_phones})
 
 
 def questionnaire(request):

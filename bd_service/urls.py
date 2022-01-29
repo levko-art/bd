@@ -16,22 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-# ToDo - РЕГИСТРАЦИЯ, АУТЕНТИФИКАЦИЯ
-
-# ToDo - Увязка с эквайрингом
-
-# ToDo - ВЗАИМОДЕЙСТВИЕ С 1С
-#  Запросы
-#  - ввод показаний счетчиков
-#  - заявка на вызов мастера
-#  - возможность отказаться от получения квитанций в бумажном виде
-
-# ToDo - другое
-#  - справочник номеров телефонов
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('auth.urls')),
     path('api/', include('api.urls')),
+    path('reports/', include('payment_history.urls')),
     path('', include('users.urls')),
 ]

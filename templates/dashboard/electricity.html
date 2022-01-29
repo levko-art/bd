@@ -122,11 +122,11 @@
                         </table>
                     </div>
 
-                    <div style="margin-top: 1%; margin-bottom: 1%">
-                        <form>
-                            <a class="btn btn-lg btn-primary" style="width: 100%" href="../../components/navbar/" role="button">Повна виписка &raquo;</a>
-                        </form>
-                    </div>
+                    <form action="{% url 'generate-report' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="appointment" value="2">
+                       <button class="btn btn-lg btn-primary" style="width: 100%" type="submit" value="Submit">Повна виписка &raquo;</button>
+                    </form>
 
                     <div style="margin-top: 1%; margin-bottom: 2%">
                         <form>
@@ -160,16 +160,19 @@
                     </div>
 
 
-                    <div style="margin-top: 1%; margin-bottom: 1%">
-                        <form>
-                            <a class="btn btn-lg btn-primary" style="width: 100%" href="../../components/navbar/" role="button">Повна виписка &raquo;</a>
-                        </form>
-                    </div>
+                    <form action="{% url 'generate-counter-report' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="appointment" value="1">
+                       <button class="btn btn-lg btn-primary" style="width: 100%" type="submit" value="Submit">Повна виписка &raquo;</button>
+                    </form>
 
                     <div style="margin-top: 2%; margin-bottom: 1%">
-                        <form class="form-inline my-2 my-lg-0">
-                            <input class="form-control mr-sm-2" style="width: 50%" type="text" placeholder="Показники лічильника" aria-label="Показники лічильника">
-                            <button class="btn btn-lg btn-success" style="width: 48%" type="submit">Надіслати</button>
+                        <form class="form-inline my-2 my-lg-0" action="{% url 'list-create-metric' user.username %}" method="post" novalidate onsubmit="setTimeout(function(){window.location.reload();},10);">
+                            {% csrf_token %}
+                            <input class="form-control mr-sm-2" id="value" name="value" style="width: 50%" type="text" placeholder="Показники лічильника" aria-label="Показники лічильника">
+                            <input type="hidden" id="client" name="client" value="{{user.username}}">
+                            <input type="hidden" id="appointment" name="appointment" value="2">
+                            <button class="btn btn-lg btn-success" style="width: 48%" type="submit" value="Submit">Надіслати</button>
                         </form>
                     </div>
                 </div>

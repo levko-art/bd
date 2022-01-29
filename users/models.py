@@ -1,4 +1,3 @@
-import datetime
 import uuid
 
 from django.db.models import F
@@ -28,7 +27,7 @@ class Counter(models.Model):
         _default_value, _name = CHOICES[0]
 
     client = models.ForeignKey('Client', models.PROTECT)
-    datetime = models.DateTimeField(default=datetime.datetime.now())
+    datetime = models.DateTimeField(default=now)
     type = models.IntegerField(choices=Type.CHOICES)
     value = models.CharField(max_length=10, default=0)
 
@@ -36,6 +35,10 @@ class Counter(models.Model):
 
     def __str__(self):
         return f'Counter {self.id}'
+
+    class Meta:
+        verbose_name = 'Лічильник'
+        verbose_name_plural = 'Лічильники'
 
 
 class Account(models.Model):
@@ -88,6 +91,10 @@ class Account(models.Model):
 
     def __str__(self):
         return f'Account {self.id}'
+
+    class Meta:
+        verbose_name = 'Рахунок'
+        verbose_name_plural = 'Рахунки'
 
 
 class Client(User):
@@ -184,6 +191,10 @@ class Client(User):
     def __str__(self):
         return f'Client {self.username}'
 
+    class Meta:
+        verbose_name = 'Клієнт'
+        verbose_name_plural = 'Клієнти'
+
 
 class Transaction(models.Model):
 
@@ -270,6 +281,10 @@ class Transaction(models.Model):
     def __str__(self):
         return f'Transaction {self.id}'
 
+    class Meta:
+        verbose_name = 'Транзакція'
+        verbose_name_plural = 'Транзакції'
+
 
 class Metric(models.Model):
 
@@ -286,7 +301,7 @@ class Metric(models.Model):
 
         _default_value, _name = CHOICES[0]
 
-    date = models.DateField()
+    date = models.DateField(default=now)
     client = models.ForeignKey('Client', models.DO_NOTHING)
     value = models.CharField(max_length=10, default=0)
     appointment = models.IntegerField(choices=Appointment.CHOICES)
@@ -299,6 +314,10 @@ class Metric(models.Model):
 
     def __str__(self):
         return f'Metric {self.id}'
+
+    class Meta:
+        verbose_name = 'Показники лічильника'
+        verbose_name_plural = 'Показники лічильників'
 
 
 class Task(models.Model):
@@ -338,3 +357,7 @@ class Task(models.Model):
 
     def __str__(self):
         return self.id
+
+    class Meta:
+        verbose_name = 'Заявка'
+        verbose_name_plural = 'Заявки'

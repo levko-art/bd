@@ -14,10 +14,11 @@ def sign_up(request):
 def sign_in(request):
     username = request.POST['username']
     password = request.POST['password']
-    user = Client.objects.filter(username=username, password=password)[0]
-    if user:
-        authenticate(username=username, password=password)
-        login(request, user)
-        return HttpResponseRedirect(reverse(settings.SUCCESS_SIGN_IN_REDIRECT_URL))
+    users = Client.objects.filter(username=username, password=password)
+    if len(users) != 0:
+        if users[0]:
+            authenticate(username=username, password=password)
+            login(request, users[0])
+            return HttpResponseRedirect(reverse(settings.SUCCESS_SIGN_IN_REDIRECT_URL))
     else:
         return redirect("http://127.0.0.1:8000/sign_up")

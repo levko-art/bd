@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users',
     'service',
     'rest_framework',
+    'send_email.apps.SendEmailConfig',
 ]
 
 MIDDLEWARE = [
@@ -136,4 +137,13 @@ external_url = {
 }
 
 SUCCESS_SIGN_IN_REDIRECT_URL = 'dashboard'
+SUCCESS_SIGN_IN_SERVICE_REDIRECT_URL = 'service/dashboard'
 FAILED_SIGN_IN_REDIRECT_URL = 'sign_up'
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'Your gmail email'
+EMAIL_HOST_PASSWORD = 'Your gmail password'
+DEFAULT_FROM_EMAIL = 'Your name'
+DEFAULT_TO_EMAIL = 'Your email'

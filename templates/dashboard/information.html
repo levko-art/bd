@@ -63,41 +63,19 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th></th>
-                            <th></th>
+                            <th>Номер телефону</th>
+                            <th>Опис</th>
+                            <th>Контактна особа</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>+380000000000</td>
-                            <td>Телефон</td>
-
-                        </tr>
-                        <tr>
-                            <td>+380000000000</td>
-                            <td>Телефон</td>
-
-                        </tr>
-                        <tr>
-                            <td>+380000000000</td>
-                            <td>Телефон</td>
-
-                        </tr>
-                        <tr>
-                            <td>+380000000000</td>
-                            <td>Телефон</td>
-
-                        </tr>
-                        <tr>
-                            <td>+380000000000</td>
-                            <td>Телефон</td>
-
-                        </tr>
-                        <tr>
-                            <td>+380000000000</td>
-                            <td>Телефон</td>
-
-                        </tr>
+                        {% for staff_phone in staff_phones %}
+                            <tr>
+                                <td>+38{{staff_phone.phone_number}}</td>
+                                <td>{{staff_phone.description}}</td>
+                                <td>{{staff_phone.contact_person}}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
