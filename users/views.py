@@ -85,4 +85,3 @@ def update_questionnaire(request):
             user.save()
 
     return redirect("http://127.0.0.1:8000/")
-

@@ -86,7 +86,11 @@
             </div>
 
             <div style="float: top; margin-top: 1%; margin-bottom: 1%">
-                <a class="btn btn-lg btn-primary" style="width: 100%" href="../../components/navbar/" role="button">Отримати електронну квитанцію &raquo;</a>
+                <form action="{% url 'generate-report' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="appointment" name="appointment" value="2">
+                    <button class="btn btn-lg btn-primary" style="width: 100%" type="submit" value="Submit">Отримати електронну квитанцію &raquo;</button>
+                </form>
             </div>
 
             <div style="float: top; margin-top: 1%; margin-bottom: 2%">
