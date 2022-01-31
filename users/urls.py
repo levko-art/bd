@@ -12,4 +12,5 @@ urlpatterns = [
     path('questionnaire/', questionnaire, name="questionnaire"),
     path('', sign_in, name="sign_in"),
     path('sign_up', sign_up, name="sign_up"),
+    path('update_questionnaire/', update_questionnaire, name="update-questionnaire"),
 ]

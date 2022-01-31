@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .models import Account, Client, Metric, Task, Transaction
 from service.models import StaffPhone
@@ -69,3 +69,20 @@ def questionnaire(request):
     accounts = Account.objects.filter(client=request.user, is_active=True)
     client = Client.objects.get(username=request.user)
     return render(request, 'dashboard/questionnaire.html', {'accounts': accounts, 'client': client})
+
+
+def update_questionnaire(request):
+    username = request.POST['username']
+    users = Client.objects.filter(username=username)
+    if len(users) != 0:
+        if users[0]:
+            user = users[0]
+            user.email = request.POST['email']
+            user.phone = request.POST['phone']
+            user.reserve_phone = request.POST['reserve_phone']
+            if request.POST['password'] != '':
+                user.password = request.POST['password']
+            user.save()
+
+    return redirect("http://127.0.0.1:8000/")
+

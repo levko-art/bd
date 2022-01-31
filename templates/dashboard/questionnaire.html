@@ -59,45 +59,54 @@
             <h1>Ваша анкетна інформація</h1>
             <div class="jumbotron">
                 <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td><b>ПІБ</b></td>
-                            <td>{{client.client_full_name}}</td>
-                        </tr>
-                        <tr>
-                            <td><b>Адреса</b></td>
-                            <td>{{client.housing_complex}}, {{client.region}} область, {{client.district}} район, {{client.town}}, вул. {{client.street}}, б. {{client.building}}/{{client.house_building}}, кв. {{client.flat}}</td>
-                        </tr>
-                        <tr>
-                            <td><b>Особовий рахунок</b></td>
-                            <td>{{client.username}}</td>
-                        </tr>
-                        <tr>
-                            <td><b>e-mail</b></td>
-                            <td><input class="form-control mr-sm-2" type="text" placeholder="e-mail" aria-label="e-mail" value="{{client.email}}"></td>
-                        </tr>
-                        <tr>
-                            <td><b>Телефон</b></td>
-                            <td><input class="form-control mr-sm-2" type="text" placeholder="+380000000000" aria-label="+380000000000" value="{{client.phone}}"></td>
-                        </tr>
-                        <tr>
-                            <td><b>Додатковий телефон</b></td>
-                            <td><input class="form-control mr-sm-2" type="text" placeholder="+380000000000" aria-label="+380000000000" value="{{client.reserve_phone}}"></td>
-                        </tr>
-                        <tr>
-                            <td><b>Пароль</b></td>
-                            <td><input class="form-control mr-sm-2" type="text" placeholder="**********" aria-label="password"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <a class="btn btn-lg btn-success" style="width: 100%; margin-top: 3%" href="#" role="button">Оновити інформацію</a>
+
+                    <form class="form-signin">
+
+                        {% csrf_token %}
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><b>ПІБ</b></td>
+                                <td>{{client.client_full_name}}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Адреса</b></td>
+                                <td>{{client.housing_complex}}, {{client.region}} область, {{client.district}} район, {{client.town}}, вул. {{client.street}}, б. {{client.building}}/{{client.house_building}}, кв. {{client.flat}}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Особовий рахунок</b></td>
+                                <td>{{client.username}}</td>
+                                <input type="hidden" name="username" value="{{client.username}}">
+                            </tr>
+                            <tr>
+                                <td><b>e-mail</b></td>
+                                <td><input name="email" class="form-control mr-sm-2" type="text" placeholder="e-mail" aria-label="e-mail" value="{{client.email}}"></td>
+                            </tr>
+                            <tr>
+                                <td><b>Телефон</b></td>
+                                <td><input name="phone" class="form-control mr-sm-2" type="text" placeholder="+380000000000" aria-label="+380000000000" value="{{client.phone}}"></td>
+                            </tr>
+                            <tr>
+                                <td><b>Додатковий телефон</b></td>
+                                <td><input name="reserve_phone" class="form-control mr-sm-2" type="text" placeholder="+380000000000" aria-label="+380000000000" value="{{client.reserve_phone}}"></td>
+                            </tr>
+                            <tr>
+                                <td><b>Пароль</b></td>
+                                <td><input name="password" class="form-control mr-sm-2" type="text" placeholder="**********" aria-label="password"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <button formaction="{% url 'update-questionnaire' %}" formmethod="post" formnovalidate class="btn btn-lg btn-success" style="width: 100%; margin-top: 3%" type="submit">Оновити інформацію</button>
+
+                    </form>
+
                 </div>
             </div>
         </main>
